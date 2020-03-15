@@ -1,4 +1,5 @@
 import time
+from datetime import timedelta
 
 import GetOldTweets3 as got
 import re
@@ -16,7 +17,7 @@ def fetch_events():
     tweets = reversed(got.manager.TweetManager.getTweets(tweetCriteria)) # List[got.models.Tweet.Tweet]
     tweets = map(lambda t: (t.date, pattern.search(t.text)), tweets)
     tweets = filter(lambda tt: tt[1] is not None, tweets)
-    tweets = list(map(lambda t: (t[0], int(t[1].group(1)), int(t[1].group(2))), tweets))
+    tweets = list(map(lambda t: (t[0] + timedelta(hours=1), int(t[1].group(1)), int(t[1].group(2))), tweets))
     print(f"Found {len(tweets)} new tweets")
     return tweets
 
@@ -49,20 +50,9 @@ def main():
             print(f"Updating {len(events)} new events")
             update_events(events)
             newest = events[-1]
-        print("Waiting 10 mins...")
-        time.sleep(600)
-#
-# if update:
-#     with open(filename, "w") as f:
-#         fieldnames = ['datetime', 'infected', 'deaths']
-#         writer = csv.DictWriter(f, fieldnames=fieldnames)
-#         writer.writeheader()
-#         for tweet in tweets:
-#             writer.writerow({'datetime': f"{tweet[0]:%Y-%m-%d %H:%M:%S}", 'infected': tweet[1].group(1), 'deaths': tweet[1].group(2)})
-#             # print(tweet[0], tweet[1].group(1), tweet[1].group(2))
-# else:
-#     for tweet in tweets:
-#         print(f"{tweet[0]:%Y-%m-%d %H:%M:%S}: {tweet[1].group(1)}/{tweet[1].group(2)}")
+        print("Waiting 5 mins...")
+        time.sleep(300)
+
 
 if __name__ == "__main__":
     main()
