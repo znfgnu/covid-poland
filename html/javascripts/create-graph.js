@@ -16,6 +16,13 @@ function parseData(createGraph) {
 	});
 }
 
+function leadingZero(n){
+  if(n < 10){
+    return "0" + n;
+  }
+  return n;
+}
+
 function createGraph(data) {
 	var datetimes = ['x'];
 	var infected = ['Zakażeni'];
@@ -53,6 +60,13 @@ function createGraph(data) {
             	}
 	        }
 	    },
+		tooltip: {
+			format: {
+				title: function (d) {
+					return d.getFullYear() + "-" + leadingZero(d.getMonth() + 1) + "-" + leadingZero(d.getDate()) + " " + leadingZero(d.getHours()) + ":" + leadingZero(d.getMinutes()) + ":" + leadingZero(d.getSeconds());
+				},
+			},
+		},
 	    zoom: {
         	enabled: true
     	},
