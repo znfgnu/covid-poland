@@ -7,7 +7,11 @@ function parseData(createGraph) {
 		complete: function(results) {
 			createGraph(results.data);
 			lastUpdated = results.data[results.data.length-2][0];
+			infectedNow = results.data[results.data.length-2][1];
+			deathsNow = results.data[results.data.length-2][2];
 			document.getElementById("lastUpdated").innerHTML = lastUpdated;
+			document.getElementById("infectedNow").innerHTML = infectedNow;
+			document.getElementById("deathsNow").innerHTML = deathsNow;
 		}
 	});
 }
@@ -16,6 +20,7 @@ function createGraph(data) {
 	var datetimes = ['x'];
 	var infected = ['Zakażeni'];
 	var deaths = ['Zgony'];
+	var xticks = [];
 
 	for (var i = 1; i < data.length-1; i++) {
 		datetimes.push(data[i][0]);
@@ -23,9 +28,10 @@ function createGraph(data) {
 		deaths.push(data[i][2]);
 	}
 
-	console.log(datetimes);
-	console.log(infected);
-	console.log(deaths);
+	var now = new Date();
+	for (var d = new Date(2020, 3-1, 5); d <= now; d.setDate(d.getDate() + 1)) {
+		xticks.push(new Date(d));
+	}
 
 	var chart = c3.generate({
 		bindto: '#chart',
@@ -41,9 +47,9 @@ function createGraph(data) {
 	    axis: {
 	        x: {
 	            type: 'timeseries',
-	            // categories: datetimes,
 	            tick: {
-	            	format: '%m/%d',
+	            	values: xticks,
+	            	format: '%Y-%m-%d'
             	}
 	        }
 	    },
