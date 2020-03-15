@@ -7,11 +7,11 @@ function parseData(createGraph) {
 		complete: function(results) {
 			createGraph(results.data);
 			lastUpdated = results.data[results.data.length-2][0];
-			infectedNow = results.data[results.data.length-2][1];
-			deathsNow = results.data[results.data.length-2][2];
+			// infectedNow = results.data[results.data.length-2][1];
+			// deathsNow = results.data[results.data.length-2][2];
 			document.getElementById("lastUpdated").innerHTML = lastUpdated;
-			document.getElementById("infectedNow").innerHTML = infectedNow;
-			document.getElementById("deathsNow").innerHTML = deathsNow;
+			// document.getElementById("infectedNow").innerHTML = infectedNow;
+			// document.getElementById("deathsNow").innerHTML = deathsNow;
 		}
 	});
 }
@@ -25,8 +25,8 @@ function leadingZero(n){
 
 function createGraph(data) {
 	var datetimes = ['x'];
-	var infected = ['Zakażeni'];
-	var deaths = ['Zgony'];
+	var infected = ['Zakażeni: ' + data[data.length-2][1]];
+	var deaths = ['Zgony: ' + data[data.length-2][2]];
 	var xticks = [];
 
 	for (var i = 1; i < data.length-1; i++) {
@@ -55,13 +55,15 @@ function createGraph(data) {
 	        x: {
 	            type: 'timeseries',
 	            tick: {
+					multiline: false,
 	            	values: xticks,
-	            	format: '%Y-%m-%d'
+	            	format: '%d-%m'
             	}
 	        }
 	    },
 		tooltip: {
 			format: {
+				name: function (name, ratio, id, index) { return name.split(':')[0]; },
 				title: function (d) {
 					return d.getFullYear() + "-" + leadingZero(d.getMonth() + 1) + "-" + leadingZero(d.getDate()) + " " + leadingZero(d.getHours()) + ":" + leadingZero(d.getMinutes()) + ":" + leadingZero(d.getSeconds());
 				},
@@ -71,7 +73,7 @@ function createGraph(data) {
         	enabled: true
     	},
 	    legend: {
-	        position: 'right'
+	        position: 'inset'
 	    }
 	});
 }
