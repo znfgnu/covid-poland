@@ -26,38 +26,51 @@ function createGraph(data) {
 	var increaseInf = [''];
 	var increaseDea = [''];
 
-	var lastDayFirstIndex = 1;
-	var lastDayFirstDate = new Date(data[1][0].split(' ')[0]);
-	increaseX.push(lastDayFirstDate);
-	increaseInf.push(data[1][1]);
-	increaseDea.push(data[1][2]);
+	var indexDayBefore = 0;
+	var dateDayBefore = new Date("2020-03-03");//data[1][0].split(' ')[0]);
 
 	for (var i = 1; i < data.length-1; i++) {
 		datetimes.push(data[i][0]);
 		infected.push(data[i][1]);
 		deaths.push(data[i][2]);
 
-		if (i>1) {
-			var today = new Date(data[i][0].split(' ')[0]);
-			if (today.getDate() !== lastDayFirstDate.getDate()) {
-				var dinf = data[i][1] - data[lastDayFirstIndex][1];
-				var ddea = data[i][2] - data[lastDayFirstIndex][2];
-				var dd = (today - new Date(data[lastDayFirstIndex][0].split(' ')[0])) / (1000 * 60 * 60 * 24);
-				var incinf = dinf / dd;
-				var incdea = ddea / dd;
-				increaseX.push(today);
-				increaseInf.push(incinf);
-				increaseDea.push(incdea);
-				lastDayFirstDate = today;
-				lastDayFirstIndex = i;
+		var today = new Date(data[i][0].split(' ')[0]);
+
+		var isLastOfDay = false;
+		if (i+1 < data.length-1) {
+			var nextDay = new Date(data[i + 1][0].split(' ')[0]);
+			if (nextDay.getDate() !== today.getDate()) isLastOfDay = true;
+		} else {
+			isLastOfDay = true;
+		}
+
+		if (isLastOfDay) {
+			var dayBeforeInf;
+			var dayBeforeDea;
+			if (indexDayBefore === 0) {
+				dayBeforeInf = 0;
+				dayBeforeDea = 0;
+			} else {
+				dayBeforeInf = data[indexDayBefore][1];
+				dayBeforeDea = data[indexDayBefore][2];
 			}
+			var dinf = data[i][1] - dayBeforeInf;
+			var ddea = data[i][2] - dayBeforeDea;
+			var dd = (today - dateDayBefore) / (1000 * 60 * 60 * 24);
+			var incinf = dinf / dd;
+			var incdea = ddea / dd;
+			increaseX.push(today);
+			increaseInf.push(incinf);
+			increaseDea.push(incdea);
+			dateDayBefore = today;
+			indexDayBefore = i;
 		}
 	}
 
 	increaseInf[0] = 'Nowe zakażenia dziennie: ' + increaseInf[increaseInf.length-1];
 	increaseDea[0] = 'Nowe zgony dziennie: ' + increaseDea[increaseDea.length-1];
 
-	for (var d = new Date(2020, 3-1, 5); d <= lastDayFirstDate; d.setDate(d.getDate() + 1)) {
+	for (var d = new Date(2020, 3-1, 5); d <= dateDayBefore; d.setDate(d.getDate() + 1)) {
 		xticks.push(new Date(d));
 	}
 
@@ -65,7 +78,7 @@ function createGraph(data) {
 		bindto: '#chart2',
 		bar: {
 		  width: {
-			ratio: 20,
+			ratio: 0.5,
 		  }
 		},
 		data: {
