@@ -1,5 +1,5 @@
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import GetOldTweets3 as got
 import re
@@ -17,7 +17,7 @@ def fetch_events():
     tweets = reversed(got.manager.TweetManager.getTweets(tweetCriteria)) # List[got.models.Tweet.Tweet]
     tweets = map(lambda t: (t.date, pattern.search(t.text)), tweets)
     tweets = filter(lambda tt: tt[1] is not None, tweets)
-    tweets = list(map(lambda t: (t[0] + timedelta(hours=1), int(t[1].group(1)), int(t[1].group(2))), tweets))
+    tweets = list(map(lambda t: ((t[0] + timedelta(hours=1)).replace(tzinfo=None), int(t[1].group(1)), int(t[1].group(2))), tweets))
     print(f"Found {len(tweets)} new tweets")
     return tweets
 
@@ -28,6 +28,7 @@ def get_newest_event():
         reader = csv.DictReader(f)
         for row in reader:
             ev = row['datetime'], int(row['infected']), int(row['deaths'])
+    ev = datetime.strptime(ev[0], '%Y-%m-%d %H:%M:%S'), ev[1], ev[2]
     print(f"Newest: {ev}")
     return ev
 
@@ -45,7 +46,7 @@ def main():
 
     while True:
         events = fetch_events()
-        events = list(filter(lambda ev: ev[1] > newest[1] or ev[2] > newest[2], events))
+        events = list(filter(lambda ev: ev[0] > newest[0], events))
         if events:
             print(f"Updating {len(events)} new events")
             update_events(events)
